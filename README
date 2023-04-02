@@ -1,2 +1,3 @@
 A very simple tool to check the latest Arch Linux news. Can be useful if you're upgrading packages and there's an important announcement that requires manual intervention. 
+
 Paccheck is designed to be ergonomic and extensible, it does not invoke Pacman or any other program for that matter. All it does it alert you of any new notifications.
