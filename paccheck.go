@@ -24,7 +24,7 @@ const (
 
 func main() {
 
-	fmt.Println(BOLD + "Checking Arch Linux news..." + RESET)
+	fmt.Println(BOLD + BLUE + ":: " + RESET + BOLD + "Checking Arch Linux news..." + RESET)
 	body, err := fetch(ARCH_LINUX_URL)
 
 	if err != nil {
