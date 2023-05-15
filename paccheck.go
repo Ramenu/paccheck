@@ -12,7 +12,7 @@ import (
 
 const (
 	ARCH_LINUX_URL = "https://archlinux.org"
-	REGEX = "(?s)<div id=\"news\">.*?<div class=\"article-content\">\\s*<p>(.*?)</p>\\s*</div>"
+	REGEX = "(?s)<div id=\"news\">.*?<h4>\\s*?<a href=\"[/\\w-]*\"\\s*?title=\"[\\w\\W]*?\">([\\w\\W]*?)</a>.*?<div class=\"article-content\">\\s*?<p>(.*?)</p>\\s*</div>"
 	RED    = "\033[31m"
 	GREEN  = "\033[32m"
 	YELLOW = "\033[33m"
@@ -37,7 +37,7 @@ func main() {
 		panic(err)
 	}
 
-	feed := r.FindStringSubmatch(body)[1]
+	feed := r.FindStringSubmatch(body)[2]
 
 	// check if the news feed has been saved locally, if so we can assume that
 	// the user has seen the update so we do not need to show it again
@@ -79,6 +79,13 @@ func main() {
 		return
 	}
 
+	plainTitle := r.FindStringSubmatch(body)[1]
+	dashLine := "\n"
+	for range plainTitle {
+		dashLine += "-"
+	}
+	title := BOLD + YELLOW + plainTitle + RESET + BOLD + dashLine + RESET + "\n\n"
+
 	styledFeed := highlightTag(feed, "code", CYAN)
 	styledFeed = highlightTag(styledFeed, "h2", BOLD)
 	
@@ -90,7 +97,7 @@ func main() {
 	}
 
 	styledFeed = r.ReplaceAllString(styledFeed, "")
-	fmt.Println(styledFeed)
+	fmt.Println("\n" + title + styledFeed)
 	fmt.Print(BOLD + "\nAcknowledge and save this news feed?" + RESET + " (y/n) ")
 
 	var ack string
