@@ -80,6 +80,7 @@ func main() {
 	}
 
 	styledFeed := highlightTag(feed, "code", CYAN)
+	styledFeed = highlightTag(styledFeed, "h2", BOLD)
 	
 	// remove all HTML tags
 	r, err = regexp.Compile("<.*?>")
