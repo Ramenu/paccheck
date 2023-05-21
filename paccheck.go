@@ -7,12 +7,14 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"html"
+	"strings"
 )
 
 
 const (
 	ARCH_LINUX_URL = "https://archlinux.org"
-	REGEX = "(?s)<div id=\"news\">.*?<h4>\\s*?<a href=\"[/\\w-]*\"\\s*?title=\"[\\w\\W]*?\">([\\w\\W]*?)</a>.*?<div class=\"article-content\">\\s*?<p>(.*?)</p>\\s*</div>"
+	REGEX = "(?s)<div id=\"news\">.*?<h4>\\s*?<a href=\"[/\\w-]*\"\\s*?title=\"[\\w\\W]*?\">([\\w\\W]*?)</a>.*?<div class=\"article-content\">\\s*?<p>(.*?)</div>"
 	RED    = "\033[31m"
 	GREEN  = "\033[32m"
 	YELLOW = "\033[33m"
@@ -44,7 +46,7 @@ func main() {
 	updated := false
 
 	// define the path to the file
-	filename := filepath.Join(os.Getenv("HOME"), ".paccheck", "news")
+	filename := filepath.Join(os.Getenv("HOME"), ".config", ".paccheck", "news")
 
 	// create the '.paccheck' directory if it doesn't exist
 	if _, err := os.Stat(filepath.Dir(filename)); os.IsNotExist(err) {
@@ -89,16 +91,24 @@ func main() {
 	styledFeed := highlightTag(feed, "code", CYAN)
 	styledFeed = highlightTag(styledFeed, "h2", BOLD)
 	
-	// remove all HTML tags
+	// regex for capturing all HTML tags
 	r, err = regexp.Compile("<.*?>")
 
 	if err != nil {
 		panic(err)
 	}
 
+	// remove all HTML tags
 	styledFeed = r.ReplaceAllString(styledFeed, "")
+
+	// unescape HTML entities
+	styledFeed = html.UnescapeString(styledFeed)
+
+	// Trim leading and trailing whitespace
+	styledFeed = strings.TrimSpace(styledFeed)
+
 	fmt.Println("\n" + title + styledFeed)
-	fmt.Print(BOLD + "\nAcknowledge and save this news feed?" + RESET + " (y/n) ")
+	fmt.Print(BOLD + "Acknowledge and save this news feed?" + RESET + " (y/n) ")
 
 	var ack string
 	_, err = fmt.Scan(&ack)
@@ -126,7 +136,14 @@ func highlightTag(body string, tagName string, color string) string {
 		panic(err)
 	}
 
-	body = r.ReplaceAllString(body, color)
+	// Check if it's a title, if it is prepend a new line
+	// so that it looks better
+	if tagName == "h2" {
+		body = r.ReplaceAllString(body, "\n" + color)
+	} else {
+		body = r.ReplaceAllString(body, color)
+	}
+
 	regex = fmt.Sprintf("</%s>", tagName)
 	r, err = regexp.Compile(regex)
 
@@ -137,6 +154,8 @@ func highlightTag(body string, tagName string, color string) string {
 	return r.ReplaceAllString(body, RESET)
 }
 
+// Returns a string consisting of the HTML page from `url`
+// and an error in case something went wrong.
 func fetch(url string) (string, error) {
 	resp, err := http.Get(url)
 
