@@ -46,7 +46,13 @@ func main() {
 	updated := false
 
 	// define the path to the file
-	filename := filepath.Join(os.Getenv("HOME"), ".config", ".paccheck", "news")
+	var filename string
+	xdg_config, exists := os.LookupEnv("XDG_CONFIG_HOME")
+	if !exists {
+		filename = filepath.Join(os.Getenv("HOME"), ".config", ".paccheck", "news")
+	} else {
+		filename = filepath.Join(xdg_config, ".paccheck", "news")
+	}
 
 	// create the '.paccheck' directory if it doesn't exist
 	if _, err := os.Stat(filepath.Dir(filename)); os.IsNotExist(err) {
