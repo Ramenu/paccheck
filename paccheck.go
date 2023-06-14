@@ -108,6 +108,7 @@ func main() {
 	styledFeed = r.ReplaceAllString(styledFeed, "")
 
 	// unescape HTML entities
+	title = html.UnescapeString(title)
 	styledFeed = html.UnescapeString(styledFeed)
 
 	// Trim leading and trailing whitespace
