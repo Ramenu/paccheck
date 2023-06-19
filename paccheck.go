@@ -96,8 +96,8 @@ func main() {
 	// (you have to manually go to the URL and check it, which would be more expensive
 	// to do and require a rewrite of the code). Therefore, it's much simpler to just
 	// check if the prefix matches. It is very unlikely that prefixes of other articles
-	// will be the same, and it is unlikely that the article is less than 10 characters long.
-	previousFeed := matches[1][2][:10]
+	// will be the same, and it is unlikely that the article is less than 30 characters long.
+	previousFeed := matches[1][2][:30]
 	multipleUpdatesOccurred := false
 
 	// we need to check if the next match is the same article
